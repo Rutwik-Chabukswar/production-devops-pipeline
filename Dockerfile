@@ -1,11 +1,21 @@
-FROM node:20-alpine
+# ---------- BUILD STAGE ----------
+FROM node:20 AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# ---------- PRODUCTION STAGE ----------
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app .
+
+RUN npm install --only=production
 
 EXPOSE 3000
 
